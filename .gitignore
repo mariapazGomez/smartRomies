@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment variables (secretos, nunca versionar)
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# Vercel
+.vercel
+
+# Build / cache
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Obsidian (config local del vault, no compartir workspace/plugins entre máquinas)
+vault/.obsidian/workspace*
+vault/.obsidian/plugins/
+
+# OS
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
