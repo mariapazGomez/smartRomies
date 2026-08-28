@@ -13,6 +13,16 @@ Representa a cada integrante del hogar que puede registrar usos de lavadora/seca
 | `activo`     | `boolean`     | No   | `true`                | Si es `false`, deja de aparecer como opción para registrar usos nuevos, pero su historial se conserva. |
 | `created_at` | `timestamptz` | No   | `now()`               | Fecha de alta del integrante.                 |
 
+## Ejemplo de valores
+
+| `id`                                   | `nombre` | `activo` | `created_at`             |
+|-----------------------------------------|----------|----------|---------------------------|
+| `11111111-1111-4111-8111-111111111111` | Ana      | `true`   | 2026-08-01 09:00:00+00    |
+| `22222222-2222-4222-8222-222222222222` | Luis     | `true`   | 2026-08-01 09:00:00+00    |
+| `33333333-3333-4333-8333-333333333333` | Caro     | `false`  | 2026-08-01 09:00:00+00    |
+
+En este ejemplo, Caro se mudó del hogar y quedó `activo = false`: ya no aparece como opción para registrar usos nuevos, pero sus `usage_records` pasados se conservan intactos.
+
 ## Llaves e índices
 
 - **PK**: `id`.

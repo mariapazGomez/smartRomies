@@ -16,6 +16,21 @@ Tabla transaccional: cada fila es un evento de "esta persona hizo esta acción (
 | `notas`                | `text`        | Sí   | —                     | Comentario opcional (ej. "carga grande", "compartido con Luis").             |
 | `created_at`           | `timestamptz` | No   | `now()`                | Cuándo se creó el registro en el sistema.                                    |
 
+## Ejemplo de valores
+
+| `id`   | `member_id` (→ [[members]])              | `action_type_codigo` | `precio_cobrado` | `fecha_uso`             | `notas`              | `created_at`             |
+|--------|--------------------------------------------|------------------------|--------------------|---------------------------|-----------------------|---------------------------|
+| `a001` | `11111111-...` (Ana)                        | `lavado`               | 2000               | 2026-08-10 08:15:00+00    | —                     | 2026-08-10 08:15:03+00    |
+| `a002` | `22222222-...` (Luis)                       | `secado`               | 2000               | 2026-08-10 09:40:00+00    | —                     | 2026-08-10 09:40:11+00    |
+| `a003` | `11111111-...` (Ana)                        | `secado`               | 2000               | 2026-08-11 20:05:00+00    | "carga grande"        | 2026-08-11 20:05:47+00    |
+| `a004` | `22222222-...` (Luis)                       | `lavado`               | 2200               | 2026-09-16 07:30:00+00    | —                     | 2026-09-16 07:30:05+00    |
+
+(`id`, `member_id` acortados por legibilidad; en la base real son `uuid` completos.)
+
+Nótese la fila `a004`: es posterior al cambio de precio de ejemplo descrito en [[action_types]] (lavado sube a $2.200 el 2026-09-15), por eso su `precio_cobrado` es 2200, mientras que `a001`, que es de antes del cambio, quedó congelada en 2000 aunque hoy `action_types.precio_actual` ya no sea ese valor.
+
+Con estos 4 registros, el resumen del período 2026-08-01 a 2026-08-31 (ver [[US-03-resumen-por-persona]]) sería: Ana debe $4.000 (1 lavado + 1 secado), Luis debe $2.000 (1 secado) — el registro `a004` de septiembre no entra en ese período.
+
 ## Llaves e índices
 
 - **PK**: `id`.
