@@ -12,6 +12,18 @@ Todo el contexto del proyecto — reglas de trabajo, decisiones de arquitectura,
 - **Supabase** (Postgres) como base de datos — esquema en [`supabase/migrations`](./supabase/migrations).
 - **Vercel** para despliegue.
 
+## Desarrollo local
+
+```bash
+cp .env.example .env   # completar con las credenciales del proyecto Supabase
+npm install
+npm run dev             # http://localhost:3000
+```
+
+Sin un `.env` completo, la app igual levanta: `GET /api/health` responde un error controlado indicando qué variable falta.
+
+Otros scripts: `npm run build` (build de producción), `npm run lint`.
+
 ## Estado actual
 
-Fase de diseño del modelo de datos, sin webapp scaffoldeada todavía. Ver [changelog](./vault/04-Changelog.md) para la línea de tiempo completa.
+Webapp scaffoldeada (Next.js 15 + TypeScript + Tailwind 4, App Router, cliente Supabase server-only). Ver [changelog](./vault/04-Changelog.md) para la línea de tiempo completa y próximos pasos.
