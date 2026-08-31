@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { cargarBoleta, type Boleta } from "@/lib/actions";
+import { cargarBoleta, type Boleta, type Proveedor } from "@/lib/actions";
 
 function formatPrecio(precio: number) {
   return precio.toLocaleString("es-CL", {
@@ -11,8 +11,8 @@ function formatPrecio(precio: number) {
   });
 }
 
-export default function CargarBoleta() {
-  const [proveedor, setProveedor] = useState("");
+export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[] }) {
+  const [proveedorCodigo, setProveedorCodigo] = useState("");
   const [periodo, setPeriodo] = useState("");
   const [monto, setMonto] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export default function CargarBoleta() {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await cargarBoleta(proveedor, periodo, Number(monto));
+      const result = await cargarBoleta(proveedorCodigo, periodo, Number(monto));
       if (!result.ok) {
         setError(result.error);
         return;
@@ -34,7 +34,7 @@ export default function CargarBoleta() {
 
   function cargarOtra() {
     setResultado(null);
-    setProveedor("");
+    setProveedorCodigo("");
     setPeriodo("");
     setMonto("");
   }
@@ -45,7 +45,7 @@ export default function CargarBoleta() {
         <h2 className="text-lg font-semibold">Boleta cargada</h2>
         <p className="text-base">
           <strong>
-            {resultado.proveedor} ({resultado.periodo})
+            {resultado.proveedorNombre} ({resultado.periodo})
           </strong>
           : {formatPrecio(resultado.montoTotal)} → {formatPrecio(resultado.montoPorPersona)}{" "}
           por persona × {resultado.cantidadIntegrantes} integrantes
@@ -65,14 +65,21 @@ export default function CargarBoleta() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">Cargar boleta</h2>
       <div className="flex flex-col gap-2">
-        <input
-          type="text"
-          value={proveedor}
-          onChange={(e) => setProveedor(e.target.value)}
-          placeholder="Proveedor (ej. Luz)"
+        <select
+          value={proveedorCodigo}
+          onChange={(e) => setProveedorCodigo(e.target.value)}
           disabled={isPending}
           className="rounded-lg border border-neutral-300 px-3 py-3 text-base disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
-        />
+        >
+          <option value="" disabled>
+            Proveedor
+          </option>
+          {proveedores.map((proveedor) => (
+            <option key={proveedor.codigo} value={proveedor.codigo}>
+              {proveedor.nombre}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           value={periodo}
@@ -95,7 +102,7 @@ export default function CargarBoleta() {
       </div>
       <button
         type="submit"
-        disabled={isPending || !proveedor.trim() || !periodo.trim() || !monto}
+        disabled={isPending || !proveedorCodigo || !periodo.trim() || !monto}
         className="rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
       >
         {isPending ? "Cargando..." : "Cargar boleta"}

@@ -9,7 +9,7 @@ Registra una boleta variable del hogar (luz, agua, gas, ...) cargada a mano, con
 | Columna               | Tipo          | Nulo | Default   | Descripción                                                                 |
 |------------------------|---------------|------|-----------|-------------------------------------------------------------------------------|
 | `id`                   | `uuid`        | No   | `gen_random_uuid()` | Identificador único de la boleta.                                  |
-| `proveedor`            | `text`        | No   | —         | Texto libre (ej. "Luz", "Agua"). No está atado a una compañía específica.     |
+| `proveedor_codigo`     | `text`        | No   | —         | Qué proveedor es. FK a [[proveedores]] (`'luz'`, `'agua'`, `'gas'`). Se elige de una lista, no es texto libre, para poder agregar montos por proveedor más adelante. |
 | `periodo`              | `text`        | No   | —         | Texto libre para identificar el período facturado (ej. "Agosto 2026").       |
 | `monto_total`          | `integer`     | No   | —         | Monto total de la boleta en CLP. `CHECK (monto_total >= 0)`.                  |
 | `cantidad_integrantes` | `integer`     | No   | —         | Cantidad de [[members]] con `activo = true` al momento de cargar la boleta. `CHECK (cantidad_integrantes > 0)`. |
@@ -19,7 +19,8 @@ Registra una boleta variable del hogar (luz, agua, gas, ...) cargada a mano, con
 ## Llaves e índices
 
 - **PK**: `id`.
-- Sin FK: el reparto es en partes iguales (una cifra por integrante), no un evento por persona, así que no hace falta vincular filas individuales de `members`.
+- **FK**: `proveedor_codigo` → `proveedores(codigo)`.
+- Sin FK a `members`/`usage_records`: el reparto es en partes iguales (una cifra por integrante), no un evento por persona, así que no hace falta vincular filas individuales de `members`.
 
 ## Notas de diseño
 

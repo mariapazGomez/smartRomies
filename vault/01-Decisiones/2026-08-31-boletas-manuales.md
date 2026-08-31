@@ -19,6 +19,12 @@ Se investigó `https://www.chilquinta.cl/` (incluyendo `/cobros-cuenta` y `/cons
 
 Detalle del modelo en `vault/02-Modelo-de-Datos/boletas.md`. Historia de usuario: `vault/03-Historias-de-Usuario/US-06-cargar-boleta.md`.
 
+## Actualización 2026-08-31 (más tarde): proveedor como catálogo, no texto libre
+
+Se probó también el flujo para la boleta de agua (Esval, `https://www.esval.cl/personas/pago`): mismo caso que Chilquinta — sin API pública y con el formulario de consulta de deuda protegido con reCAPTCHA (`onsubmit="return verificarRecaptcha()"`), así que tampoco se automatiza.
+
+Al confirmar que va a haber más de un proveedor (luz, agua, y potencialmente gas), se decidió que `boletas.proveedor` no sea texto libre sino una FK a un catálogo nuevo (`proveedores`, mismo rol que `action_types` para `usage_records`) — así se puede agregar el monto total por proveedor de forma confiable más adelante, sin depender de que el texto se haya escrito siempre igual. Ver [[proveedores]] y `supabase/migrations/0003_proveedores.sql`.
+
 ## Consecuencias
 
 - No hace falta guardar ninguna credencial de terceros ni exponer a SmartRomies a los términos de servicio de otro sitio.

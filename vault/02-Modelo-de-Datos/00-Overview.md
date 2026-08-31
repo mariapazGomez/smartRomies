@@ -8,6 +8,7 @@ Ver decisión de alcance en [[2026-08-28-modelo-datos-v1-alcance]]. DDL ejecutab
 erDiagram
     MEMBERS ||--o{ USAGE_RECORDS : "registra"
     ACTION_TYPES ||--o{ USAGE_RECORDS : "clasifica"
+    PROVEEDORES ||--o{ BOLETAS : "clasifica"
 
     MEMBERS {
         uuid id PK
@@ -35,9 +36,16 @@ erDiagram
         timestamptz created_at
     }
 
+    PROVEEDORES {
+        text codigo PK
+        text nombre
+        boolean activo
+        timestamptz created_at
+    }
+
     BOLETAS {
         uuid id PK
-        text proveedor
+        text proveedor_codigo FK
         text periodo
         integer monto_total
         integer cantidad_integrantes
@@ -46,7 +54,7 @@ erDiagram
     }
 ```
 
-`BOLETAS` es una tabla independiente, sin FK hacia las demás: el reparto es en partes iguales (una cifra por integrante, congelada al momento de la carga), no un evento por persona. Ver [[boletas]] y [[2026-08-31-boletas-manuales]].
+`BOLETAS` no tiene FK hacia `MEMBERS`/`USAGE_RECORDS`: el reparto es en partes iguales (una cifra por integrante, congelada al momento de la carga), no un evento por persona. Sí tiene FK a `PROVEEDORES` (catálogo, mismo rol que `ACTION_TYPES`) para poder agregar montos por proveedor de forma confiable más adelante. Ver [[boletas]], [[proveedores]] y [[2026-08-31-boletas-manuales]].
 
 ## Relaciones
 

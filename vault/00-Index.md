@@ -17,6 +17,7 @@ Webapp para dividir de forma clara las cuentas de un hogar compartido, accesible
   - [[action_types|action_types]]
   - [[usage_records|usage_records]]
   - [[boletas|boletas]]
+  - [[proveedores|proveedores]]
   - [[99-Futuro-fuera-de-alcance|Futuro / fuera de alcance]]
 - Historias de usuario: [[US-01-registrar-uso]] · [[US-02-ver-historial]] · [[US-03-resumen-por-persona]] · [[US-04-actualizar-precio]] · [[US-05-alta-integrantes]] · [[US-06-cargar-boleta]]
 - [[04-Changelog|Changelog]] — línea de tiempo de todos los cambios del proyecto.

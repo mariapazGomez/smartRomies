@@ -4,6 +4,16 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Proveedor de boleta pasa a catálogo (selector), no texto libre
+
+- Se probó el flujo con la boleta de agua (Esval, `https://www.esval.cl/personas/pago`): mismo resultado que Chilquinta — sin API pública y con el formulario de deuda protegido con reCAPTCHA (`onsubmit="return verificarRecaptcha()"`), tampoco se automatiza. No hizo falta desarrollar nada nuevo: el flujo genérico de "Cargar boleta" ya sirve para cualquier proveedor.
+- A pedido del usuario, para poder agregar montos por proveedor de forma confiable más adelante, `boletas.proveedor` (texto libre) pasa a `boletas.proveedor_codigo` (FK a una tabla catálogo nueva `proveedores`, mismo rol que `action_types` para `usage_records`). Ver actualización del ADR [[2026-08-31-boletas-manuales]] y la ficha [[proveedores]].
+- `supabase/migrations/0003_proveedores.sql`: crea `proveedores` (sembrada con `luz`/`agua`/`gas`) y migra `boletas.proveedor` → `boletas.proveedor_codigo`. Asume `boletas` sin filas cargadas todavía (la migración falla, sin corromper datos, si ya hubiera boletas).
+- `src/lib/actions.ts` (`cargarBoleta`), `src/app/page.tsx` (trae `proveedores` activos), `src/components/Home.tsx` y `src/components/CargarBoleta.tsx` (selector en vez de input de texto) actualizados.
+- Verificado: `npm run build`/`npm run lint` sin errores. **Pendiente**: aplicar `0003_proveedores.sql` en el SQL Editor de Supabase (el usuario ya había corrido la 0002 antes de este cambio) antes de poder probar `cargarBoleta` de nuevo.
+
+---
+
 ## 2026-08-31 — Cargar boleta variable (US-06), ingreso manual en vez de scraping
 
 - El usuario pidió automatizar el monto de la boleta de luz (Chilquinta) por web scraping. Se investigó el sitio (`chilquinta.cl`, `/cobros-cuenta`, `/consultas`): es una SPA protegida con reCAPTCHA en todas sus páginas, sin API pública de desarrollador. Sortear reCAPTCHA es evadir un mecanismo anti-bot y probablemente viola los TOS de Chilquinta — se descartó la automatización. Detalle completo en [[2026-08-31-boletas-manuales]].

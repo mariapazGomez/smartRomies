@@ -102,8 +102,13 @@ export async function registrarUso(
   };
 }
 
+export type Proveedor = {
+  codigo: string;
+  nombre: string;
+};
+
 export type Boleta = {
-  proveedor: string;
+  proveedorNombre: string;
   periodo: string;
   montoTotal: number;
   cantidadIntegrantes: number;
@@ -112,19 +117,21 @@ export type Boleta = {
 
 /**
  * Cargar una boleta variable (ver vault/03-Historias-de-Usuario/US-06-cargar-boleta.md).
+ * `proveedorCodigo` se valida contra el catálogo `proveedores` (ver
+ * vault/02-Modelo-de-Datos/proveedores.md) en vez de aceptar texto libre, para
+ * poder agregar montos por proveedor de forma confiable más adelante.
  * `cantidad_integrantes`/`monto_por_persona` se calculan contra los members activos
  * en este mismo momento y quedan congelados (ver vault/01-Decisiones/2026-08-31-boletas-manuales.md):
  * no se recalculan si después cambia la cantidad de integrantes.
  */
 export async function cargarBoleta(
-  proveedor: string,
+  proveedorCodigo: string,
   periodo: string,
   montoTotal: number
 ): Promise<ActionResult<Boleta>> {
-  const proveedorLimpio = proveedor.trim();
   const periodoLimpio = periodo.trim();
 
-  if (!proveedorLimpio || !periodoLimpio) {
+  if (!proveedorCodigo || !periodoLimpio) {
     return { ok: false, error: "Completá proveedor y período." };
   }
   if (!Number.isFinite(montoTotal) || montoTotal <= 0) {
@@ -132,6 +139,17 @@ export async function cargarBoleta(
   }
 
   const supabase = createSupabaseServerClient();
+
+  const { data: proveedor, error: proveedorError } = await supabase
+    .from("proveedores")
+    .select("nombre")
+    .eq("codigo", proveedorCodigo)
+    .eq("activo", true)
+    .single();
+
+  if (proveedorError || !proveedor) {
+    return { ok: false, error: "El proveedor elegido ya no está disponible." };
+  }
 
   const { count, error: countError } = await supabase
     .from("members")
@@ -152,7 +170,7 @@ export async function cargarBoleta(
   const montoPorPersona = Math.round(montoTotalRedondeado / count);
 
   const { error: insertError } = await supabase.from("boletas").insert({
-    proveedor: proveedorLimpio,
+    proveedor_codigo: proveedorCodigo,
     periodo: periodoLimpio,
     monto_total: montoTotalRedondeado,
     cantidad_integrantes: count,
@@ -166,7 +184,7 @@ export async function cargarBoleta(
   return {
     ok: true,
     data: {
-      proveedor: proveedorLimpio,
+      proveedorNombre: proveedor.nombre,
       periodo: periodoLimpio,
       montoTotal: montoTotalRedondeado,
       cantidadIntegrantes: count,

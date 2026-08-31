@@ -8,10 +8,11 @@ export const dynamic = "force-dynamic";
 export default async function Page() {
   let members;
   let actionTypes;
+  let proveedores;
 
   try {
     const supabase = createSupabaseServerClient();
-    const [membersRes, actionTypesRes] = await Promise.all([
+    const [membersRes, actionTypesRes, proveedoresRes] = await Promise.all([
       supabase
         .from("members")
         .select("id, nombre")
@@ -22,13 +23,20 @@ export default async function Page() {
         .select("codigo, nombre, precio_actual")
         .eq("activo", true)
         .order("nombre"),
+      supabase
+        .from("proveedores")
+        .select("codigo, nombre")
+        .eq("activo", true)
+        .order("nombre"),
     ]);
 
     if (membersRes.error) throw membersRes.error;
     if (actionTypesRes.error) throw actionTypesRes.error;
+    if (proveedoresRes.error) throw proveedoresRes.error;
 
     members = membersRes.data;
     actionTypes = actionTypesRes.data;
+    proveedores = proveedoresRes.data;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error desconocido";
     return (
@@ -44,7 +52,7 @@ export default async function Page() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-10">
       <h1 className="text-2xl font-semibold">SmartRomies</h1>
-      <Home initialMembers={members} actionTypes={actionTypes} />
+      <Home initialMembers={members} actionTypes={actionTypes} proveedores={proveedores} />
     </main>
   );
 }

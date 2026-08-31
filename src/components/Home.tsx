@@ -4,16 +4,18 @@ import { useState } from "react";
 import AddMemberForm from "@/components/AddMemberForm";
 import RegistrarUso from "@/components/RegistrarUso";
 import CargarBoleta from "@/components/CargarBoleta";
-import type { ActionType, Member } from "@/lib/actions";
+import type { ActionType, Member, Proveedor } from "@/lib/actions";
 
 type Modo = "uso" | "boleta";
 
 export default function Home({
   initialMembers,
   actionTypes,
+  proveedores,
 }: {
   initialMembers: Member[];
   actionTypes: ActionType[];
+  proveedores: Proveedor[];
 }) {
   const [members, setMembers] = useState(initialMembers);
   const [showAddMember, setShowAddMember] = useState(false);
@@ -53,7 +55,7 @@ export default function Home({
       {modo === "uso" ? (
         <RegistrarUso members={members} actionTypes={actionTypes} />
       ) : (
-        <CargarBoleta />
+        <CargarBoleta proveedores={proveedores} />
       )}
       <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
         {showAddMember ? (
