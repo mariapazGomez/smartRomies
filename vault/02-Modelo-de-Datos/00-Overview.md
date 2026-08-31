@@ -34,7 +34,19 @@ erDiagram
         text notas
         timestamptz created_at
     }
+
+    BOLETAS {
+        uuid id PK
+        text proveedor
+        text periodo
+        integer monto_total
+        integer cantidad_integrantes
+        integer monto_por_persona
+        timestamptz created_at
+    }
 ```
+
+`BOLETAS` es una tabla independiente, sin FK hacia las demás: el reparto es en partes iguales (una cifra por integrante, congelada al momento de la carga), no un evento por persona. Ver [[boletas]] y [[2026-08-31-boletas-manuales]].
 
 ## Relaciones
 

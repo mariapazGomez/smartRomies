@@ -4,6 +4,18 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Cargar boleta variable (US-06), ingreso manual en vez de scraping
+
+- El usuario pidió automatizar el monto de la boleta de luz (Chilquinta) por web scraping. Se investigó el sitio (`chilquinta.cl`, `/cobros-cuenta`, `/consultas`): es una SPA protegida con reCAPTCHA en todas sus páginas, sin API pública de desarrollador. Sortear reCAPTCHA es evadir un mecanismo anti-bot y probablemente viola los TOS de Chilquinta — se descartó la automatización. Detalle completo en [[2026-08-31-boletas-manuales]].
+- En su lugar, se implementó [[US-06-cargar-boleta]]: ingreso manual del monto desde la app, con prorrateo automático en **partes iguales** entre los integrantes activos. `cantidad_integrantes`/`monto_por_persona` quedan congelados al momento de la carga (mismo principio que `usage_records.precio_cobrado`).
+- Modelo nuevo: tabla `boletas` (sin FK a las demás — el reparto es una cifra por integrante, no un evento por persona). Ver [[boletas]] y migración `supabase/migrations/0002_boletas.sql`.
+- Se actualizó [[99-Futuro-fuera-de-alcance]]: "prorrateo de boletas variables" pasa de idea futura a v1 (acotado a ingreso manual + partes iguales; automatización, otros criterios de reparto e historial de boletas siguen fuera de alcance).
+- UI: `src/components/Home.tsx` agrega un selector "Registrar uso" / "Cargar boleta"; nuevo `src/components/CargarBoleta.tsx` y server action `cargarBoleta` en `src/lib/actions.ts`.
+- Verificado: `npm run build`/`npm run lint` sin errores. **Pendiente**: aplicar `0002_boletas.sql` en el SQL Editor de Supabase (no se pudo aplicar desde acá — solo hay acceso vía REST con la service role key, que no ejecuta DDL) antes de poder probar `cargarBoleta` contra la base real o en el navegador.
+- Sigue en `feature/registrar-uso`, pendiente de que el usuario aplique la migración y pruebe el flujo.
+
+---
+
 ## 2026-08-31 — Selección múltiple de acciones en US-01
 
 - A pedido del usuario, tras probar el flujo: registrar un uso ahora permite elegir **más de un tipo de acción a la vez** (ej. lavado + secado en la misma tanda), en vez de una sola acción por registro. Se actualizaron los criterios de aceptación de [[US-01-registrar-uso]].

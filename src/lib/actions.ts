@@ -101,3 +101,76 @@ export async function registrarUso(
     },
   };
 }
+
+export type Boleta = {
+  proveedor: string;
+  periodo: string;
+  montoTotal: number;
+  cantidadIntegrantes: number;
+  montoPorPersona: number;
+};
+
+/**
+ * Cargar una boleta variable (ver vault/03-Historias-de-Usuario/US-06-cargar-boleta.md).
+ * `cantidad_integrantes`/`monto_por_persona` se calculan contra los members activos
+ * en este mismo momento y quedan congelados (ver vault/01-Decisiones/2026-08-31-boletas-manuales.md):
+ * no se recalculan si después cambia la cantidad de integrantes.
+ */
+export async function cargarBoleta(
+  proveedor: string,
+  periodo: string,
+  montoTotal: number
+): Promise<ActionResult<Boleta>> {
+  const proveedorLimpio = proveedor.trim();
+  const periodoLimpio = periodo.trim();
+
+  if (!proveedorLimpio || !periodoLimpio) {
+    return { ok: false, error: "Completá proveedor y período." };
+  }
+  if (!Number.isFinite(montoTotal) || montoTotal <= 0) {
+    return { ok: false, error: "El monto tiene que ser mayor a cero." };
+  }
+
+  const supabase = createSupabaseServerClient();
+
+  const { count, error: countError } = await supabase
+    .from("members")
+    .select("id", { count: "exact", head: true })
+    .eq("activo", true);
+
+  if (countError) {
+    return { ok: false, error: countError.message };
+  }
+  if (!count) {
+    return {
+      ok: false,
+      error: "No hay integrantes activos para repartir la boleta.",
+    };
+  }
+
+  const montoTotalRedondeado = Math.round(montoTotal);
+  const montoPorPersona = Math.round(montoTotalRedondeado / count);
+
+  const { error: insertError } = await supabase.from("boletas").insert({
+    proveedor: proveedorLimpio,
+    periodo: periodoLimpio,
+    monto_total: montoTotalRedondeado,
+    cantidad_integrantes: count,
+    monto_por_persona: montoPorPersona,
+  });
+
+  if (insertError) {
+    return { ok: false, error: insertError.message };
+  }
+
+  return {
+    ok: true,
+    data: {
+      proveedor: proveedorLimpio,
+      periodo: periodoLimpio,
+      montoTotal: montoTotalRedondeado,
+      cantidadIntegrantes: count,
+      montoPorPersona,
+    },
+  };
+}

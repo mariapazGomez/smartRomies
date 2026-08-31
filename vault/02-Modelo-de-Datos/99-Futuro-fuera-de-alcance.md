@@ -11,10 +11,13 @@ Hoy el modelo asume un único hogar. Si se necesita soportar varios hogares (ej.
 
 ## Prorrateo de boletas variables
 
-Los gastos reales del hogar (luz, agua, gas) llegan por boleta y varían mes a mes — no son un precio fijo como lavado/secado. Ideas a explorar más adelante:
-- Tabla `boletas` (proveedor, período, monto total).
-- Mecanismo de prorrateo: dividir el monto de la boleta entre los integrantes según algún criterio (partes iguales, proporcional a uso registrado, etc. — a definir con el usuario).
-- Esto es un modelo distinto al de `usage_records` (que es "costo fijo por acción"), así que probablemente sea una tabla y flujo separados, no una extensión de `usage_records`.
+**Actualización 2026-08-31**: la versión mínima de esto ya está en v1 — ingreso manual del monto y prorrateo en partes iguales. Ver [[boletas]] y [[2026-08-31-boletas-manuales]]. Se investigó automatizar la obtención del monto por scraping (Chilquinta) y se descartó: el sitio está protegido con reCAPTCHA y no tiene API pública, sortear esa protección no es algo que se vaya a construir.
+
+Lo que sigue fuera de alcance:
+- Automatizar la obtención del monto (scraping, integración con alguna API si Chilquinta u otro proveedor llega a publicar una).
+- Otros criterios de prorrateo además de partes iguales (proporcional a uso registrado, etc.).
+- Historial/listado de boletas cargadas.
+- Recalcular el reparto de una boleta ya cargada si cambia la cantidad de integrantes activos después.
 
 ## Pagos / settlements entre integrantes
 
