@@ -2,11 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { cargarBoleta, type Boleta, type Proveedor } from "@/lib/actions";
-import { formatPrecio } from "@/lib/format";
+import { formatPrecio, formatMes } from "@/lib/format";
+import { CANTIDAD_MESES_SELECTOR, mesActualValue, mesesDisponibles } from "@/lib/meses";
+
+const MESES_PERIODO = mesesDisponibles(CANTIDAD_MESES_SELECTOR);
 
 export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[] }) {
   const [proveedorCodigo, setProveedorCodigo] = useState("");
-  const [periodo, setPeriodo] = useState("");
+  const [periodo, setPeriodo] = useState(mesActualValue());
   const [monto, setMonto] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [resultado, setResultado] = useState<Boleta | null>(null);
@@ -16,7 +19,7 @@ export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[]
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await cargarBoleta(proveedorCodigo, periodo, Number(monto));
+      const result = await cargarBoleta(proveedorCodigo, formatMes(periodo), Number(monto));
       if (!result.ok) {
         setError(result.error);
         return;
@@ -28,7 +31,7 @@ export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[]
   function cargarOtra() {
     setResultado(null);
     setProveedorCodigo("");
-    setPeriodo("");
+    setPeriodo(mesActualValue());
     setMonto("");
   }
 
@@ -73,14 +76,18 @@ export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[]
             </option>
           ))}
         </select>
-        <input
-          type="text"
+        <select
           value={periodo}
           onChange={(e) => setPeriodo(e.target.value)}
-          placeholder="Período (ej. Agosto 2026)"
           disabled={isPending}
           className="rounded-lg border border-neutral-300 px-3 py-3 text-base disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
-        />
+        >
+          {MESES_PERIODO.map((mes) => (
+            <option key={mes} value={mes}>
+              {formatMes(mes)}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           inputMode="numeric"

@@ -10,8 +10,8 @@ Ver [[2026-08-31-boletas-manuales]]: se descartó automatizar la obtención del 
 
 ## Criterios de aceptación
 
-- Desde la pantalla principal (una vez que hay integrantes activos) se puede pasar a un modo "Cargar boleta", separado del flujo de registrar uso.
-- El formulario pide: proveedor (selector sobre [[proveedores]] activos — no texto libre, para poder agregar montos por proveedor de forma confiable más adelante), período (texto libre, ej. "Agosto 2026") y monto total.
+- Desde la página de resumen del integrante ([[US-08-resumen-por-integrante]]) se puede pasar a un modo "Cargar boleta", separado del flujo de registrar uso.
+- El formulario pide: proveedor (selector sobre [[proveedores]] activos — no texto libre, para poder agregar montos por proveedor de forma confiable más adelante), período (selector de mes, mismos últimos 12 meses que [[US-07-resumen-del-mes]] — no texto libre, para no tener variantes del mismo mes escritas distinto) y monto total.
 - Al confirmar, se crea una fila en [[boletas]] con `cantidad_integrantes` (los [[members]] activos en ese momento) y `monto_por_persona` ya calculados y congelados.
 - Se muestra una confirmación clara con el desglose (ej. "Boleta de Luz (Agosto 2026): $45.000 → $15.000 por persona × 3 integrantes").
 - Si no hay ningún integrante activo, se muestra un mensaje claro en vez de dejar cargar la boleta (no se puede repartir entre cero personas).

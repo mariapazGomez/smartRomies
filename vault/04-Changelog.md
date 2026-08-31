@@ -4,6 +4,14 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Período de boleta pasa a selector de mes
+
+- A pedido del usuario, el campo "período" de "Cargar boleta" deja de ser texto libre: pasa a un `<select>` con los mismos últimos 12 meses que ya usa [[US-07-resumen-del-mes]] (reusa `mesesDisponibles`/`formatMes` de `src/lib/meses.ts`/`src/lib/format.ts`). `boletas.periodo` sigue siendo texto libre en el esquema (sin migración) — el cliente ahora siempre envía el texto formateado (ej. "Agosto 2026") en vez de dejar que alguien lo tipee distinto cada vez. Actualizado [[US-06-cargar-boleta]].
+- `src/components/CargarBoleta.tsx`: el período arranca en el mes actual por default.
+- Verificado: `npm run build`/`npm run lint` sin errores. La pestaña "Cargar boleta" es contenido cliente (no se renderiza en el HTML inicial hasta tocarla), así que no pude confirmarla por curl como el resto — queda para que el usuario la pruebe tocando la pestaña en `npm run dev`.
+
+---
+
 ## 2026-08-31 — Selector de integrantes en círculos + página de resumen por persona (US-08)
 
 - Rediseño de la entrada a la app, a pedido del usuario: `/` pasa a mostrar solo una grilla de círculos (iniciales sobre color, placeholder de avatar — ver [[US-08-resumen-por-integrante]]) o el onboarding si no hay integrantes; tocar un círculo navega a `/miembro/[id]`.
