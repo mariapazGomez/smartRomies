@@ -1,16 +1,16 @@
 # US-01: Registrar un uso de lavadora/secadora
 
 **Como** integrante del hogar,
-**quiero** seleccionar mi perfil y registrar que hice un lavado o un secado desde mi celular,
+**quiero** seleccionar mi perfil y registrar que hice un lavado y/o un secado desde mi celular,
 **para que** quede constancia de quién debe pagar qué.
 
 ## Criterios de aceptación
 
 - La pantalla principal muestra la lista de integrantes activos ([[members]] con `activo = true`) como opciones tocables.
-- Al elegir un perfil, se puede elegir el tipo de acción entre los `action_types` activos (hoy: Lavado $2.000, Secado $2.000).
-- Al confirmar, se crea una fila en [[usage_records]] con `member_id`, `action_type_codigo`, `precio_cobrado` (= `action_types.precio_actual` en ese momento) y `fecha_uso` (por defecto, ahora).
-- El flujo completo (elegir perfil → elegir acción → confirmar) debe ser posible en 2-3 toques, priorizando velocidad de uso desde el celular.
-- Tras registrar, se muestra una confirmación clara (ej. "Ana registró un Lavado — $2.000").
+- Al elegir un perfil, se puede elegir **uno o más** tipos de acción entre los `action_types` activos (hoy: Lavado $2.000, Secado $2.000) — selección múltiple, porque en la práctica se suele lavar y secar en la misma tanda.
+- Al confirmar, se crea **una fila en [[usage_records]] por cada tipo de acción elegido** (no una sola fila combinada): mismo `member_id` y `fecha_uso`, cada una con su propio `action_type_codigo` y `precio_cobrado` (= `action_types.precio_actual` de esa acción en ese momento). Esto mantiene el principio de "una fila = un evento" del modelo de datos (ver [[usage_records]]) y hace que el historial ([[US-02-ver-historial]]) y el resumen por persona ([[US-03-resumen-por-persona]]) sigan funcionando sin cambios.
+- El flujo completo (elegir perfil → elegir una o más acciones → confirmar) prioriza velocidad de uso desde el celular: para una sola acción son 3 toques (perfil, acción, confirmar); elegir más de una acción suma un toque por cada acción extra.
+- Tras registrar, se muestra una confirmación clara con el detalle de lo registrado y el total (ej. "Ana registró Lavado + Secado — $4.000").
 
 ## Fuera de alcance de esta historia
 

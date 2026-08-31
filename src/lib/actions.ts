@@ -46,33 +46,45 @@ export async function addMember(
 }
 
 /**
- * Registrar un uso (ver vault/03-Historias-de-Usuario/US-01-registrar-uso.md).
+ * Registrar uno o más usos a la vez (ver vault/03-Historias-de-Usuario/US-01-registrar-uso.md).
+ * Cada `actionTypeCodigo` elegido genera su propia fila en usage_records (mismo
+ * member_id/fecha_uso, precio propio), en vez de una sola fila combinada, para
+ * mantener el principio de "una fila = un evento" (vault/02-Modelo-de-Datos/usage_records.md).
  * `precio_cobrado` se congela leyendo `action_types.precio_actual` en este mismo
- * momento (no se confía en un precio ya cacheado en el cliente), en línea con
- * vault/02-Modelo-de-Datos/usage_records.md.
+ * momento (no se confía en un precio ya cacheado en el cliente).
  */
 export async function registrarUso(
   memberId: string,
-  actionTypeCodigo: string
-): Promise<ActionResult<{ actionNombre: string; precio: number }>> {
-  const supabase = createSupabaseServerClient();
-
-  const { data: actionType, error: actionTypeError } = await supabase
-    .from("action_types")
-    .select("nombre, precio_actual")
-    .eq("codigo", actionTypeCodigo)
-    .eq("activo", true)
-    .single();
-
-  if (actionTypeError || !actionType) {
-    return { ok: false, error: "El tipo de acción ya no está disponible." };
+  actionTypeCodigos: string[]
+): Promise<
+  ActionResult<{ items: { actionNombre: string; precio: number }[]; total: number }>
+> {
+  const codigos = [...new Set(actionTypeCodigos)];
+  if (codigos.length === 0) {
+    return { ok: false, error: "Elegí al menos un tipo de acción." };
   }
 
-  const { error: insertError } = await supabase.from("usage_records").insert({
-    member_id: memberId,
-    action_type_codigo: actionTypeCodigo,
-    precio_cobrado: actionType.precio_actual,
-  });
+  const supabase = createSupabaseServerClient();
+
+  const { data: actionTypes, error: actionTypesError } = await supabase
+    .from("action_types")
+    .select("codigo, nombre, precio_actual")
+    .in("codigo", codigos)
+    .eq("activo", true);
+
+  if (actionTypesError || !actionTypes || actionTypes.length !== codigos.length) {
+    return { ok: false, error: "Algún tipo de acción ya no está disponible." };
+  }
+
+  const fechaUso = new Date().toISOString();
+  const { error: insertError } = await supabase.from("usage_records").insert(
+    actionTypes.map((actionType) => ({
+      member_id: memberId,
+      action_type_codigo: actionType.codigo,
+      precio_cobrado: actionType.precio_actual,
+      fecha_uso: fechaUso,
+    }))
+  );
 
   if (insertError) {
     return { ok: false, error: insertError.message };
@@ -80,6 +92,12 @@ export async function registrarUso(
 
   return {
     ok: true,
-    data: { actionNombre: actionType.nombre, precio: actionType.precio_actual },
+    data: {
+      items: actionTypes.map((actionType) => ({
+        actionNombre: actionType.nombre,
+        precio: actionType.precio_actual,
+      })),
+      total: actionTypes.reduce((sum, actionType) => sum + actionType.precio_actual, 0),
+    },
   };
 }

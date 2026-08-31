@@ -4,6 +4,17 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Selección múltiple de acciones en US-01
+
+- A pedido del usuario, tras probar el flujo: registrar un uso ahora permite elegir **más de un tipo de acción a la vez** (ej. lavado + secado en la misma tanda), en vez de una sola acción por registro. Se actualizaron los criterios de aceptación de [[US-01-registrar-uso]].
+- Diseño: cada acción elegida sigue generando **su propia fila** en `usage_records` (mismo `member_id`/`fecha_uso`, precio propio), no una fila combinada — así no cambia el esquema ni se rompe el historial ([[US-02-ver-historial]]) ni el resumen por persona ([[US-03-resumen-por-persona]]).
+- `src/lib/actions.ts`: `registrarUso` pasa a recibir un array de `action_type_codigo`, inserta todas las filas en un solo `insert` (atómico) y devuelve el detalle + total.
+- `src/components/RegistrarUso.tsx`: el paso de elegir acción pasa a ser multi-selección (toggle) con un botón "Continuar"; la pantalla de confirmar muestra el detalle ítem por ítem y el total.
+- Verificado: `npm run build`/`npm run lint` sin errores; probado contra el Supabase real con un script puntual (lavado + secado → 2 filas con el mismo `fecha_uso`, total $4.000), dejando la base limpia después.
+- Sigue en la rama `feature/registrar-uso`, pendiente de que el usuario pruebe el flujo completo en el navegador.
+
+---
+
 ## 2026-08-31 — US-01 registrar uso + US-05 alta de integrantes
 
 - Se documentó [[US-05-alta-integrantes]]: como `members` arranca vacía y el usuario prefirió no sembrarla a mano con nombres de ejemplo, se agrega un onboarding en la propia UI para cargar integrantes (mutación ya contemplada en [[2026-08-28-seguridad-sin-auth]]).
