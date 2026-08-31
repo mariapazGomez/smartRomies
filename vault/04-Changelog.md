@@ -4,6 +4,16 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Detalle del monto original en las tarjetas de boleta
+
+- El usuario reportó que "los montos de las cuentas no se están dividiendo". Se revisaron las 2 boletas reales cargadas (`luz` $31.355, `agua` $12.090): ambas tienen `cantidad_integrantes = 1` congelado, porque se cargaron cuando todavía había un solo integrante activo en la base — no es un bug de cálculo, es el diseño de "congelar al momento de cargar" ([[2026-08-31-boletas-manuales]]) aplicado a boletas cargadas antes de sumar al resto de la casa.
+- Se agregó lo pedido: cada tarjeta de proveedor en "Tu resumen del mes" ahora muestra, como detalle chico debajo del monto por persona, la boleta original sin dividir (suma de `monto_total` del mes) — así se ve de dónde sale la parte de cada uno, y de paso queda visible cuándo una boleta quedó "sin dividir" (monto por persona = monto total). Ver [[US-08-resumen-por-integrante]].
+- `src/app/miembro/[id]/page.tsx` agrega `totalOriginalPorProveedor`; `src/components/ResumenMes.tsx` acepta un `detalle` opcional por tarjeta.
+- Verificado contra la base real: las tarjetas de Luz/Agua muestran "de $31.355 en total" / "de $12.090 en total" — igual al monto por persona, confirmando visualmente el caso de boleta congelada con 1 solo integrante.
+- **Pendiente de decidir con el usuario**: si corregir a mano esas 2 boletas ya cargadas (recalcular `cantidad_integrantes`/`monto_por_persona` contra los 3 integrantes activos actuales) — no se tocó esa data real sin confirmación explícita.
+
+---
+
 ## 2026-08-31 — Fix: el resumen por tipo del integrante mostraba datos de todo el hogar
 
 - Bug reportado por el usuario: todos los integrantes veían el mismo resumen aunque solo uno tenía usos cargados. Causa: al mover `ResumenMes` a `/miembro/[id]` (ver [[US-08-resumen-por-integrante]]), la query de `usage_records` para las tarjetas Lavado/Secado no filtraba por `member_id` — traía los usos de todo el hogar, no de la persona cuya página era. Las tarjetas de proveedor (Luz/Agua/Gas) además usaban `monto_total` (el total de la boleta) en vez de `monto_por_persona` (su parte).

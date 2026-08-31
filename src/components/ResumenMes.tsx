@@ -6,7 +6,7 @@ export default function ResumenMes({
   mesSeleccionado,
   meses,
 }: {
-  items: { nombre: string; total: number }[];
+  items: { nombre: string; total: number; detalle?: string }[];
   mesSeleccionado: string;
   meses: string[];
 }) {
@@ -24,6 +24,9 @@ export default function ResumenMes({
           >
             <p className="text-sm text-neutral-500">{item.nombre}</p>
             <p className="text-lg font-semibold">{formatPrecio(item.total)}</p>
+            {item.detalle && (
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">{item.detalle}</p>
+            )}
           </div>
         ))}
       </div>

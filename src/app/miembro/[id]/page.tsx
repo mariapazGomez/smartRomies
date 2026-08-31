@@ -70,7 +70,7 @@ export default async function PaginaMiembro({
         .lt("fecha_uso", hasta),
       supabase
         .from("boletas")
-        .select("proveedor_codigo, monto_por_persona")
+        .select("proveedor_codigo, monto_total, monto_por_persona")
         .gte("created_at", desde)
         .lt("created_at", hasta),
     ]);
@@ -94,10 +94,15 @@ export default async function PaginaMiembro({
       );
     }
     const totalPorProveedor = new Map<string, number>();
+    const totalOriginalPorProveedor = new Map<string, number>();
     for (const row of boletasMesRes.data) {
       totalPorProveedor.set(
         row.proveedor_codigo,
         (totalPorProveedor.get(row.proveedor_codigo) ?? 0) + row.monto_por_persona
+      );
+      totalOriginalPorProveedor.set(
+        row.proveedor_codigo,
+        (totalOriginalPorProveedor.get(row.proveedor_codigo) ?? 0) + row.monto_total
       );
     }
     const resumenMes = [
@@ -105,10 +110,15 @@ export default async function PaginaMiembro({
         nombre: actionType.nombre,
         total: totalPorActionType.get(actionType.codigo) ?? 0,
       })),
-      ...proveedores.map((proveedor) => ({
-        nombre: proveedor.nombre,
-        total: totalPorProveedor.get(proveedor.codigo) ?? 0,
-      })),
+      ...proveedores.map((proveedor) => {
+        const totalOriginal = totalOriginalPorProveedor.get(proveedor.codigo) ?? 0;
+        return {
+          nombre: proveedor.nombre,
+          total: totalPorProveedor.get(proveedor.codigo) ?? 0,
+          // Ver US-08: la boleta prorrateada — cuánto era la cuenta original antes de dividirla.
+          detalle: totalOriginal > 0 ? `de ${formatPrecio(totalOriginal)} en total` : undefined,
+        };
+      }),
     ];
 
     const totalUsosMiembro = usosMiembroRes.data.reduce(
