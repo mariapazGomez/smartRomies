@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { formatMes } from "@/lib/format";
 
 export default function SelectorMes({
@@ -11,11 +11,12 @@ export default function SelectorMes({
   meses: string[];
 }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <select
       value={mesSeleccionado}
-      onChange={(e) => router.push(`/?mes=${e.target.value}`)}
+      onChange={(e) => router.push(`${pathname}?mes=${e.target.value}`)}
       className="rounded-lg border border-neutral-300 px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
       {meses.map((mes) => (

@@ -4,6 +4,17 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Selector de integrantes en círculos + página de resumen por persona (US-08)
+
+- Rediseño de la entrada a la app, a pedido del usuario: `/` pasa a mostrar solo una grilla de círculos (iniciales sobre color, placeholder de avatar — ver [[US-08-resumen-por-integrante]]) o el onboarding si no hay integrantes; tocar un círculo navega a `/miembro/[id]`.
+- Nueva página `/miembro/[id]`: header con avatar grande + "Debe pagar este mes" (sus `usage_records` del mes + su parte —`monto_por_persona`— de las `boletas` del mes), el resumen por tipo que antes vivía en `/` (mismo `ResumenMes`/`SelectorMes`, ahora reusados acá), y las pestañas Registrar uso/Cargar boleta (antes en `/`).
+- `RegistrarUso.tsx` se simplificó: como el integrante ya está fijado por la ruta, deja de tener el paso "¿Quién sos?" — recibe `member` en vez de `members[]`, flujo de 2 pasos (elegir acción(es) → confirmar) en vez de 3. "Cambiar perfil" pasa a ser un link a `/`.
+- Se marca [[US-03-resumen-por-persona]] como cubierta por esta historia (con alcance más chico: total del mes, no desglose lavado/secado todavía).
+- Nuevos: `src/app/miembro/[id]/page.tsx`, `src/components/{Avatar,SelectorMiembros,AccionesMiembro}.tsx`, `src/lib/meses.ts` (lógica de meses extraída de `page.tsx`, reusada por la ruta nueva). `SelectorMes.tsx` usa `usePathname()` en vez de asumir `/`.
+- Verificado: `npm run build`/`npm run lint` sin errores; confirmado contra el `npm run dev` real del usuario — `/` muestra el selector, `/miembro/[id]` real muestra nombre/total/tabs y "Registrar uso" arranca directo en elegir acción, y un `id` inexistente muestra un mensaje claro (200, sin crash) en vez de romper.
+
+---
+
 ## 2026-08-31 — Selector de mes en el resumen (US-07)
 
 - A pedido del usuario, [[US-07-resumen-del-mes]] deja de estar fija al mes calendario actual: se agregó un selector con los últimos 12 meses. La elección viaja por la URL (`/?mes=YYYY-MM`, Server Component leyendo `searchParams`), sin mes en la URL se ve el actual por defecto.

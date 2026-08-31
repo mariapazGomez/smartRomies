@@ -1,5 +1,7 @@
 # US-03: Ver resumen de cuánto debe cada persona
 
+> **Estado 2026-08-31**: la necesidad central de esta historia (cuánto debe pagar cada uno) quedó cubierta por [[US-08-resumen-por-integrante]] — con un cálculo más simple de lo planteado acá (total del mes por persona, incluyendo boletas, sin desglosar lavado vs. secado todavía). Lo que sigue pendiente de esta historia: distinguir lavado vs. secado por persona, elegir un rango de fechas libre (no solo mes calendario), y el total general del hogar como referencia.
+
 **Como** integrante del hogar,
 **quiero** ver un resumen de cuánto le corresponde pagar a cada persona en un período,
 **para** saber cuánto debo (o cuánto me deben) sin tener que sumar manualmente el historial.

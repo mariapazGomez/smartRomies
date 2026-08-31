@@ -1,28 +1,23 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { registrarUso, type ActionType, type Member } from "@/lib/actions";
 import { formatPrecio } from "@/lib/format";
 
 type Step =
-  | { name: "perfil" }
-  | { name: "accion"; member: Member }
-  | { name: "confirmar"; member: Member; actionTypes: ActionType[] }
-  | {
-      name: "hecho";
-      member: Member;
-      items: { actionNombre: string; precio: number }[];
-      total: number;
-    };
+  | { name: "accion" }
+  | { name: "confirmar"; actionTypes: ActionType[] }
+  | { name: "hecho"; items: { actionNombre: string; precio: number }[]; total: number };
 
 export default function RegistrarUso({
-  members,
+  member,
   actionTypes,
 }: {
-  members: Member[];
+  member: Member;
   actionTypes: ActionType[];
 }) {
-  const [step, setStep] = useState<Step>({ name: "perfil" });
+  const [step, setStep] = useState<Step>({ name: "accion" });
   const [seleccionadas, setSeleccionadas] = useState<ActionType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -35,7 +30,7 @@ export default function RegistrarUso({
     );
   }
 
-  function confirmar(member: Member, actionTypesElegidos: ActionType[]) {
+  function confirmar(actionTypesElegidos: ActionType[]) {
     setError(null);
     startTransition(async () => {
       const result = await registrarUso(
@@ -46,12 +41,7 @@ export default function RegistrarUso({
         setError(result.error);
         return;
       }
-      setStep({
-        name: "hecho",
-        member,
-        items: result.data.items,
-        total: result.data.total,
-      });
+      setStep({ name: "hecho", items: result.data.items, total: result.data.total });
     });
   }
 
@@ -60,33 +50,10 @@ export default function RegistrarUso({
   const buttonSelectedClass =
     "w-full rounded-lg border-2 border-neutral-900 bg-neutral-100 px-4 py-3 text-left text-base font-medium dark:border-neutral-100 dark:bg-neutral-800";
 
-  if (step.name === "perfil") {
-    return (
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">¿Quién sos?</h2>
-        <div className="flex flex-col gap-2">
-          {members.map((member) => (
-            <button
-              key={member.id}
-              type="button"
-              className={buttonClass}
-              onClick={() => {
-                setSeleccionadas([]);
-                setStep({ name: "accion", member });
-              }}
-            >
-              {member.nombre}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   if (step.name === "accion") {
     return (
       <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">¿Qué hiciste, {step.member.nombre}?</h2>
+        <h2 className="text-lg font-semibold">¿Qué hiciste, {member.nombre}?</h2>
         <p className="text-sm text-neutral-500">Podés elegir más de una.</p>
         <div className="flex flex-col gap-2">
           {actionTypes.map((actionType) => {
@@ -108,19 +75,13 @@ export default function RegistrarUso({
           type="button"
           disabled={seleccionadas.length === 0}
           className="rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
-          onClick={() =>
-            setStep({ name: "confirmar", member: step.member, actionTypes: seleccionadas })
-          }
+          onClick={() => setStep({ name: "confirmar", actionTypes: seleccionadas })}
         >
           Continuar
         </button>
-        <button
-          type="button"
-          className="text-sm text-neutral-500 underline"
-          onClick={() => setStep({ name: "perfil" })}
-        >
-          Cambiar perfil
-        </button>
+        <Link href="/" className="text-sm text-neutral-500 underline">
+          Cambiar de integrante
+        </Link>
       </div>
     );
   }
@@ -130,7 +91,7 @@ export default function RegistrarUso({
     return (
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Confirmar</h2>
-        <p className="text-base font-medium">{step.member.nombre}</p>
+        <p className="text-base font-medium">{member.nombre}</p>
         <ul className="flex flex-col gap-1 text-base">
           {step.actionTypes.map((actionType) => (
             <li key={actionType.codigo} className="flex justify-between">
@@ -147,7 +108,7 @@ export default function RegistrarUso({
           type="button"
           disabled={isPending}
           className="rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
-          onClick={() => confirmar(step.member, step.actionTypes)}
+          onClick={() => confirmar(step.actionTypes)}
         >
           {isPending ? "Registrando..." : "Confirmar"}
         </button>
@@ -155,7 +116,7 @@ export default function RegistrarUso({
           type="button"
           disabled={isPending}
           className="text-sm text-neutral-500 underline disabled:opacity-50"
-          onClick={() => setStep({ name: "accion", member: step.member })}
+          onClick={() => setStep({ name: "accion" })}
         >
           Volver
         </button>
@@ -167,16 +128,15 @@ export default function RegistrarUso({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-base">
-        <strong>{step.member.nombre}</strong> registró{" "}
-        {step.items.map((item) => item.actionNombre).join(" + ")} —{" "}
-        {formatPrecio(step.total)}
+        <strong>{member.nombre}</strong> registró{" "}
+        {step.items.map((item) => item.actionNombre).join(" + ")} — {formatPrecio(step.total)}
       </p>
       <button
         type="button"
         className="rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
         onClick={() => {
           setSeleccionadas([]);
-          setStep({ name: "perfil" });
+          setStep({ name: "accion" });
         }}
       >
         Registrar otro uso
