@@ -1,13 +1,21 @@
 import { formatPrecio } from "@/lib/format";
+import SelectorMes from "@/components/SelectorMes";
 
 export default function ResumenMes({
   items,
+  mesSeleccionado,
+  meses,
 }: {
   items: { nombre: string; total: number }[];
+  mesSeleccionado: string;
+  meses: string[];
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-neutral-500">Este mes</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium text-neutral-500">Resumen del mes</h2>
+        <SelectorMes mesSeleccionado={mesSeleccionado} meses={meses} />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         {items.map((item) => (
           <div

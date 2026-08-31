@@ -6,12 +6,39 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // esta página como estática, o quedaría congelada con los datos del build.
 export const dynamic = "force-dynamic";
 
-function inicioDeMesISO() {
+const CANTIDAD_MESES_SELECTOR = 12;
+
+function mesActualValue() {
   const ahora = new Date();
-  return new Date(Date.UTC(ahora.getFullYear(), ahora.getMonth(), 1)).toISOString();
+  return `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export default async function Page() {
+/** Últimos N meses (incluido el actual), más reciente primero, como "YYYY-MM". */
+function mesesDisponibles(cantidad: number) {
+  const ahora = new Date();
+  return Array.from({ length: cantidad }, (_, i) => {
+    const fecha = new Date(Date.UTC(ahora.getFullYear(), ahora.getMonth() - i, 1));
+    return `${fecha.getUTCFullYear()}-${String(fecha.getUTCMonth() + 1).padStart(2, "0")}`;
+  });
+}
+
+/** Rango [desde, hasta) en ISO para un mes "YYYY-MM". */
+function rangoDeMes(mes: string) {
+  const [year, month] = mes.split("-").map(Number);
+  const desde = new Date(Date.UTC(year, month - 1, 1));
+  const hasta = new Date(Date.UTC(year, month, 1));
+  return { desde: desde.toISOString(), hasta: hasta.toISOString() };
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ mes?: string }>;
+}) {
+  const { mes: mesParam } = await searchParams;
+  const meses = mesesDisponibles(CANTIDAD_MESES_SELECTOR);
+  const mesSeleccionado = mesParam && meses.includes(mesParam) ? mesParam : mesActualValue();
+
   let members;
   let actionTypes;
   let proveedores;
@@ -19,7 +46,7 @@ export default async function Page() {
 
   try {
     const supabase = createSupabaseServerClient();
-    const desde = inicioDeMesISO();
+    const { desde, hasta } = rangoDeMes(mesSeleccionado);
     const [membersRes, actionTypesRes, proveedoresRes, usosMesRes, boletasMesRes] =
       await Promise.all([
         supabase
@@ -40,11 +67,13 @@ export default async function Page() {
         supabase
           .from("usage_records")
           .select("action_type_codigo, precio_cobrado")
-          .gte("fecha_uso", desde),
+          .gte("fecha_uso", desde)
+          .lt("fecha_uso", hasta),
         supabase
           .from("boletas")
           .select("proveedor_codigo, monto_total")
-          .gte("created_at", desde),
+          .gte("created_at", desde)
+          .lt("created_at", hasta),
       ]);
 
     if (membersRes.error) throw membersRes.error;
@@ -98,7 +127,7 @@ export default async function Page() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 px-6 py-10">
       <h1 className="text-2xl font-semibold">SmartRomies</h1>
-      <ResumenMes items={resumenMes} />
+      <ResumenMes items={resumenMes} mesSeleccionado={mesSeleccionado} meses={meses} />
       <Home initialMembers={members} actionTypes={actionTypes} proveedores={proveedores} />
     </main>
   );

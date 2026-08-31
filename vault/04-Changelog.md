@@ -4,6 +4,15 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Selector de mes en el resumen (US-07)
+
+- A pedido del usuario, [[US-07-resumen-del-mes]] deja de estar fija al mes calendario actual: se agregó un selector con los últimos 12 meses. La elección viaja por la URL (`/?mes=YYYY-MM`, Server Component leyendo `searchParams`), sin mes en la URL se ve el actual por defecto.
+- `src/app/page.tsx`: `rangoDeMes` calcula `[desde, hasta)` para el mes elegido y ahora filtra con `.lt(...)` además de `.gte(...)` (antes el límite superior quedaba implícito por ser siempre "hasta ahora"; con meses pasados hace falta el límite superior explícito).
+- Nuevo `src/components/SelectorMes.tsx` (`'use client'`, navega con `router.push`) y `formatMes` en `src/lib/format.ts`.
+- Verificado: `npm run build`/`npm run lint` sin errores; confirmado contra el `npm run dev` del usuario que `?mes=2026-07` marca julio como seleccionado; verificado con un registro de prueba con `fecha_uso` en julio que aparece al filtrar julio y no al filtrar agosto (por script, datos borrados después).
+
+---
+
 ## 2026-08-31 — Tarjetas de resumen del mes (US-07)
 
 - Nueva sección "Este mes" arriba de todo en la pantalla principal: una tarjeta por cada [[action_types]] activo y cada [[proveedores]] activo, con el total acumulado del mes calendario actual (usos por `fecha_uso`, boletas por `created_at`). Documentado en [[US-07-resumen-del-mes]].
