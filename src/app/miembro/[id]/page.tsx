@@ -50,48 +50,44 @@ export default async function PaginaMiembro({
 
   try {
     const { desde, hasta } = rangoDeMes(mesSeleccionado);
-    const [actionTypesRes, proveedoresRes, usosMesRes, usosMiembroRes, boletasMesRes] =
-      await Promise.all([
-        supabase
-          .from("action_types")
-          .select("codigo, nombre, precio_actual")
-          .eq("activo", true)
-          .order("nombre"),
-        supabase
-          .from("proveedores")
-          .select("codigo, nombre")
-          .eq("activo", true)
-          .order("nombre"),
-        supabase
-          .from("usage_records")
-          .select("action_type_codigo, precio_cobrado")
-          .gte("fecha_uso", desde)
-          .lt("fecha_uso", hasta),
-        supabase
-          .from("usage_records")
-          .select("precio_cobrado")
-          .eq("member_id", member.id)
-          .gte("fecha_uso", desde)
-          .lt("fecha_uso", hasta),
-        supabase
-          .from("boletas")
-          .select("proveedor_codigo, monto_total, monto_por_persona")
-          .gte("created_at", desde)
-          .lt("created_at", hasta),
-      ]);
+    const [actionTypesRes, proveedoresRes, usosMiembroRes, boletasMesRes] = await Promise.all([
+      supabase
+        .from("action_types")
+        .select("codigo, nombre, precio_actual")
+        .eq("activo", true)
+        .order("nombre"),
+      supabase
+        .from("proveedores")
+        .select("codigo, nombre")
+        .eq("activo", true)
+        .order("nombre"),
+      // Filtrado por member_id: este resumen es de este integrante, no del hogar entero.
+      supabase
+        .from("usage_records")
+        .select("action_type_codigo, precio_cobrado")
+        .eq("member_id", member.id)
+        .gte("fecha_uso", desde)
+        .lt("fecha_uso", hasta),
+      supabase
+        .from("boletas")
+        .select("proveedor_codigo, monto_por_persona")
+        .gte("created_at", desde)
+        .lt("created_at", hasta),
+    ]);
 
     if (actionTypesRes.error) throw actionTypesRes.error;
     if (proveedoresRes.error) throw proveedoresRes.error;
-    if (usosMesRes.error) throw usosMesRes.error;
     if (usosMiembroRes.error) throw usosMiembroRes.error;
     if (boletasMesRes.error) throw boletasMesRes.error;
 
     const actionTypes = actionTypesRes.data;
     const proveedores = proveedoresRes.data;
 
-    // Ver vault/03-Historias-de-Usuario/US-07-resumen-del-mes.md
+    // Ver vault/03-Historias-de-Usuario/US-08-resumen-por-integrante.md: el desglose
+    // por tipo de esta página es de este integrante — sus usos, y su parte
+    // (monto_por_persona, ya congelada e igualitaria) de cada boleta del mes.
     const totalPorActionType = new Map<string, number>();
-    for (const row of usosMesRes.data) {
+    for (const row of usosMiembroRes.data) {
       totalPorActionType.set(
         row.action_type_codigo,
         (totalPorActionType.get(row.action_type_codigo) ?? 0) + row.precio_cobrado
@@ -101,7 +97,7 @@ export default async function PaginaMiembro({
     for (const row of boletasMesRes.data) {
       totalPorProveedor.set(
         row.proveedor_codigo,
-        (totalPorProveedor.get(row.proveedor_codigo) ?? 0) + row.monto_total
+        (totalPorProveedor.get(row.proveedor_codigo) ?? 0) + row.monto_por_persona
       );
     }
     const resumenMes = [
@@ -115,8 +111,6 @@ export default async function PaginaMiembro({
       })),
     ];
 
-    // Ver vault/03-Historias-de-Usuario/US-08-resumen-por-integrante.md: sus usos
-    // + su parte (ya congelada, igualitaria) de cada boleta cargada en el mes.
     const totalUsosMiembro = usosMiembroRes.data.reduce(
       (sum, row) => sum + row.precio_cobrado,
       0

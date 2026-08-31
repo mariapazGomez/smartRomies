@@ -4,6 +4,15 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Fix: el resumen por tipo del integrante mostraba datos de todo el hogar
+
+- Bug reportado por el usuario: todos los integrantes veían el mismo resumen aunque solo uno tenía usos cargados. Causa: al mover `ResumenMes` a `/miembro/[id]` (ver [[US-08-resumen-por-integrante]]), la query de `usage_records` para las tarjetas Lavado/Secado no filtraba por `member_id` — traía los usos de todo el hogar, no de la persona cuya página era. Las tarjetas de proveedor (Luz/Agua/Gas) además usaban `monto_total` (el total de la boleta) en vez de `monto_por_persona` (su parte).
+- Fix en `src/app/miembro/[id]/page.tsx`: la query de usos ahora filtra `.eq("member_id", member.id)`; las tarjetas de proveedor usan `monto_por_persona`. Se sacó la query duplicada de usos (antes había una para el resumen y otra para el total). Título de la sección actualizado a "Tu resumen del mes" para dejar claro que es personal. Documentado en [[US-08-resumen-por-integrante]].
+- De paso, mientras verificaba, volví a corromper el cache de `.next` con `npm run build` corriendo junto al `npm run dev` real del usuario (mismo problema que ya había pasado antes en esta sesión) — se limpió `.next` de nuevo y se confirmó que fue eso, no un bug de código (la ruta `/miembro/[id]` tiraba `Cannot find module './vendor-chunks/@supabase.js'` de forma intermitente).
+- Verificado con los 3 integrantes reales de la base: la persona con 1 lavado + 1 secado ($2.000 c/u) ve esas tarjetas con esos montos y un total $4.000 mayor que las otras dos, mientras que Luz/Agua/Gas (su parte de las boletas) sale igual para los tres, como corresponde al reparto igualitario.
+
+---
+
 ## 2026-08-31 — Período de boleta pasa a selector de mes
 
 - A pedido del usuario, el campo "período" de "Cargar boleta" deja de ser texto libre: pasa a un `<select>` con los mismos últimos 12 meses que ya usa [[US-07-resumen-del-mes]] (reusa `mesesDisponibles`/`formatMes` de `src/lib/meses.ts`/`src/lib/format.ts`). `boletas.periodo` sigue siendo texto libre en el esquema (sin migración) — el cliente ahora siempre envía el texto formateado (ej. "Agosto 2026") en vez de dejar que alguien lo tipee distinto cada vez. Actualizado [[US-06-cargar-boleta]].

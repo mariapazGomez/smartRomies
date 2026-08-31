@@ -13,7 +13,7 @@ export default function ResumenMes({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-neutral-500">Resumen del mes</h2>
+        <h2 className="text-sm font-medium text-neutral-500">Tu resumen del mes</h2>
         <SelectorMes mesSeleccionado={mesSeleccionado} meses={meses} />
       </div>
       <div className="grid grid-cols-2 gap-3">
