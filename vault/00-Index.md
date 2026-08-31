@@ -19,7 +19,7 @@ Webapp para dividir de forma clara las cuentas de un hogar compartido, accesible
   - [[boletas|boletas]]
   - [[proveedores|proveedores]]
   - [[99-Futuro-fuera-de-alcance|Futuro / fuera de alcance]]
-- Historias de usuario: [[US-01-registrar-uso]] · [[US-02-ver-historial]] · [[US-03-resumen-por-persona]] · [[US-04-actualizar-precio]] · [[US-05-alta-integrantes]] · [[US-06-cargar-boleta]]
+- Historias de usuario: [[US-01-registrar-uso]] · [[US-02-ver-historial]] · [[US-03-resumen-por-persona]] · [[US-04-actualizar-precio]] · [[US-05-alta-integrantes]] · [[US-06-cargar-boleta]] · [[US-07-resumen-del-mes]]
 - [[04-Changelog|Changelog]] — línea de tiempo de todos los cambios del proyecto.
 
 ## Stack tecnológico

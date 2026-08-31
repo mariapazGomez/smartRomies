@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { registrarUso, type ActionType, type Member } from "@/lib/actions";
+import { formatPrecio } from "@/lib/format";
 
 type Step =
   | { name: "perfil" }
@@ -13,14 +14,6 @@ type Step =
       items: { actionNombre: string; precio: number }[];
       total: number;
     };
-
-function formatPrecio(precio: number) {
-  return precio.toLocaleString("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0,
-  });
-}
 
 export default function RegistrarUso({
   members,

@@ -4,6 +4,16 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — Tarjetas de resumen del mes (US-07)
+
+- Nueva sección "Este mes" arriba de todo en la pantalla principal: una tarjeta por cada [[action_types]] activo y cada [[proveedores]] activo, con el total acumulado del mes calendario actual (usos por `fecha_uso`, boletas por `created_at`). Documentado en [[US-07-resumen-del-mes]].
+- El fondo blanco pedido ya estaba (modo claro por defecto en `globals.css`); se mantiene el modo oscuro automático según preferencia del sistema, a pedido del usuario.
+- `src/app/page.tsx` agrega las queries del mes actual y agrega en JS (no se creó una vista/RPC en Postgres, el volumen de datos de un hogar no lo justifica); nuevo `src/components/ResumenMes.tsx` (Server Component, sin interactividad) renderiza la grilla de tarjetas.
+- Se extrajo `formatPrecio` (antes duplicado en `RegistrarUso.tsx`/`CargarBoleta.tsx`) a `src/lib/format.ts`, reusado también en `ResumenMes.tsx`.
+- Verificado: `npm run build`/`npm run lint` sin errores; confirmado en el navegador contra el `npm run dev` del usuario (las 5 tarjetas se ven); verificada la suma con datos de prueba reales insertados y borrados por script.
+
+---
+
 ## 2026-08-31 — Proveedor de boleta pasa a catálogo (selector), no texto libre
 
 - Se probó el flujo con la boleta de agua (Esval, `https://www.esval.cl/personas/pago`): mismo resultado que Chilquinta — sin API pública y con el formulario de deuda protegido con reCAPTCHA (`onsubmit="return verificarRecaptcha()"`), tampoco se automatiza. No hizo falta desarrollar nada nuevo: el flujo genérico de "Cargar boleta" ya sirve para cualquier proveedor.

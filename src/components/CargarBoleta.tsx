@@ -2,14 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { cargarBoleta, type Boleta, type Proveedor } from "@/lib/actions";
-
-function formatPrecio(precio: number) {
-  return precio.toLocaleString("es-CL", {
-    style: "currency",
-    currency: "CLP",
-    maximumFractionDigits: 0,
-  });
-}
+import { formatPrecio } from "@/lib/format";
 
 export default function CargarBoleta({ proveedores }: { proveedores: Proveedor[] }) {
   const [proveedorCodigo, setProveedorCodigo] = useState("");
