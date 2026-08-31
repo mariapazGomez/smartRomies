@@ -10,7 +10,7 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 - Se agregó lo pedido: cada tarjeta de proveedor en "Tu resumen del mes" ahora muestra, como detalle chico debajo del monto por persona, la boleta original sin dividir (suma de `monto_total` del mes) — así se ve de dónde sale la parte de cada uno, y de paso queda visible cuándo una boleta quedó "sin dividir" (monto por persona = monto total). Ver [[US-08-resumen-por-integrante]].
 - `src/app/miembro/[id]/page.tsx` agrega `totalOriginalPorProveedor`; `src/components/ResumenMes.tsx` acepta un `detalle` opcional por tarjeta.
 - Verificado contra la base real: las tarjetas de Luz/Agua muestran "de $31.355 en total" / "de $12.090 en total" — igual al monto por persona, confirmando visualmente el caso de boleta congelada con 1 solo integrante.
-- **Pendiente de decidir con el usuario**: si corregir a mano esas 2 boletas ya cargadas (recalcular `cantidad_integrantes`/`monto_por_persona` contra los 3 integrantes activos actuales) — no se tocó esa data real sin confirmación explícita.
+- El usuario confirmó corregirlas: se recalcularon a mano contra los 3 integrantes activos actuales (`agua`: $12.090 → $4.030 c/u; `luz`: $31.355 → $10.452 c/u), vía script puntual con la service role key (mismo patrón de verificación usado toda la sesión, esta vez como corrección real, no de prueba).
 
 ---
 
