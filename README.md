@@ -26,4 +26,4 @@ Otros scripts: `npm run build` (build de producción), `npm run lint`.
 
 ## Estado actual
 
-Webapp scaffoldeada (Next.js 15 + TypeScript + Tailwind 4, App Router, cliente Supabase server-only). Ver [changelog](./vault/04-Changelog.md) para la línea de tiempo completa y próximos pasos.
+Flujo de registrar un uso de lavadora/secadora implementado (perfil → acción → confirmar), con alta de integrantes desde la propia app. Ver [changelog](./vault/04-Changelog.md) para la línea de tiempo completa y próximos pasos.

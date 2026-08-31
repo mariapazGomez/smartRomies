@@ -4,6 +4,18 @@ Registro cronológico de cambios relevantes (funcionalidades, decisiones de mode
 
 ---
 
+## 2026-08-31 — US-01 registrar uso + US-05 alta de integrantes
+
+- Se documentó [[US-05-alta-integrantes]]: como `members` arranca vacía y el usuario prefirió no sembrarla a mano con nombres de ejemplo, se agrega un onboarding en la propia UI para cargar integrantes (mutación ya contemplada en [[2026-08-28-seguridad-sin-auth]]).
+- Se implementó [[US-01-registrar-uso]]: flujo de 3 toques (elegir perfil → elegir acción → confirmar) sobre la pantalla principal, con mensaje de confirmación y precio congelado en el momento del registro.
+- Rama: `feature/registrar-uso` (creada desde `setup/webapp-scaffold`, que todavía no está mergeada a `main`).
+- Archivos nuevos: `src/lib/actions.ts` (server actions `addMember` / `registrarUso`), `src/components/Home.tsx`, `src/components/AddMemberForm.tsx`, `src/components/RegistrarUso.tsx`. `src/app/page.tsx` pasó a ser un Server Component que trae `members`/`action_types` de Supabase y quedó marcado `export const dynamic = "force-dynamic"` (si no, Next.js lo prerenderizaba estático en build y congelaba los datos).
+- Se corrigió `eslint.config.mjs`: no excluía `.next/` ni `next-env.d.ts`, lo que hacía fallar `npm run lint` con cientos de errores ajenos al código del proyecto (bug preexistente del scaffold, no de esta feature).
+- Verificado: `npm run build` y `npm run lint` sin errores; `/` responde 200 y muestra el onboarding cuando `members` está vacía (confirmado contra el Supabase real, ya conectado en `.env`); se probó `addMember` (alta + detección de nombre duplicado) y `registrarUso` (precio congelado correctamente) con un script puntual contra la base real, dejándola limpia después. No se pudo probar clic a clic en navegador (sin acceso a Chrome en esta sesión) — falta que el usuario lo pruebe manualmente en `npm run dev`.
+- Pendiente: revisión del usuario en la rama antes de merge a `main` (que a su vez requiere primero resolver el merge de `setup/webapp-scaffold`); push a GitHub solo con confirmación explícita.
+
+---
+
 ## 2026-08-28 — Scaffold de la webapp
 
 - Se hizo merge de `setup/vault-modelo-datos` a `main` y push a `origin` (GitHub: `mariapazGomez/smartRomies`). El vault y el modelo de datos v1 ya están en `main` remoto.
